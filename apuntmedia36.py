@@ -117,19 +117,19 @@ dirPath = os.path.dirname(realPath)
 dirName = os.path.basename(dirPath)
 
 '''
-mkvmergeexe = dirPath + "\\binaries\\mkvmerge.exe"
-ffmpegpath = dirPath + "\\binaries\\ffmpeg.exe"
-ffprobepath = dirPath + "\\binaries\\ffprobe.exe"
-aria2cexe = dirPath + "\\binaries\\aria2c.exe"
+mkvmergeexe = dirPath + "/binaries/mkvmerge.exe"
+ffmpegpath = dirPath + "/binaries/ffmpeg.exe"
+ffprobepath = dirPath + "/binaries/ffprobe.exe"
+aria2cexe = dirPath + "/binaries/aria2c.exe"
 '''
 
-Base_de_datos = dirPath + "\\Base de datos"
+Base_de_datos = dirPath + "/Base de datos"
 
 if not os.path.exists(Base_de_datos):
 	os.makedirs(Base_de_datos)
 
 
-log_file = dirPath + "\\apuntmedia.json"
+log_file = dirPath + "/apuntmedia.json"
 TMP_FILE = log_file
 
 def load_json():
@@ -325,7 +325,7 @@ if ID_lista != "[]":
 		
 
 		print("Guardando datos en el txt...")		
-		with open(Base_de_datos + '\\' + Titulo_Programa + '.txt', 'a', encoding='utf-8') as file:
+		with open(Base_de_datos + '/' + Titulo_Programa + '.txt', 'a', encoding='utf-8') as file:
 				file.write("Titulo: " + title)
 				file.write("\nFecha de publicación: " + FechaPublicacion)
 				file.write("\nFecha de expiración: " + FechaExpiracion)
