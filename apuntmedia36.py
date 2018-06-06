@@ -337,6 +337,9 @@ if ID_lista != "[]":
 
 		if not args.no_descargar:
 			inputVideo = title + '.mp4'
+			if not os.path.exists(Titulo_Programa): 
+				os.makedirs(Titulo_Programa)
+			os.chdir(Titulo_Programa)
 			if os.path.isfile(inputVideo) and not os.path.isfile(inputVideo + ".aria2"):
 				print("Ya descargaste anteriormente el archivo: " + inputVideo)
 			else:
