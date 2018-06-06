@@ -214,7 +214,7 @@ while contador <= numero_paginas:
 		if '<h2 class="title"><span class="programas"></span>' in x:
 			A=find_str(str(x), '<h2 class="title"><span class="programas"></span>')
 			B=find_str(str(x), '</h2>')
-			TituloPrograma = x[A+49:B]
+			Titulo_Programa = x[A+49:B]
 		
 		if '<img src=' in x:
 			A=find_str(str(x), '<img src="')
@@ -258,10 +258,10 @@ if ID_lista != "[]":
 		FechaExpiracion = json_api_metada['metadata'][ID]['base']['FechaExpiracion']
 		FechaPublicacion = json_api_metada['metadata'][ID]['base']['FechaPublicacion']
 		Idioma = json_api_metada['metadata'][ID]['base']['Idioma']
-		try:
-			Titulo_Programa = ReplaceDontLikeWord(json_api_metada['metadata'][ID]['base']['Keyword'])
-		except Exception:
-			Titulo_Programa = "Desconocido"
+		#try:
+			#Titulo_Programa = ReplaceDontLikeWord(json_api_metada['metadata'][ID]['base']['Keyword'])
+		#except Exception:
+			#Titulo_Programa = "Desconocido"
 		Tipo = json_api_metada['metadata'][ID]['base']['Tipo']
 
 		print("Buscando otros datos...")
