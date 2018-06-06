@@ -214,7 +214,7 @@ while contador <= numero_paginas:
 		if '<h2 class="title"><span class="programas"></span>' in x:
 			A=find_str(str(x), '<h2 class="title"><span class="programas"></span>')
 			B=find_str(str(x), '</h2>')
-			Titulo_Programa = x[A+49:B]
+			Titulo_Programa = ReplaceDontLikeWord(x[A+49:B])
 
 		if '<img src=' in x:
 			A=find_str(str(x), '<img src="')
