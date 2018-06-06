@@ -215,7 +215,7 @@ while contador <= numero_paginas:
 			A=find_str(str(x), '<h2 class="title"><span class="programas"></span>')
 			B=find_str(str(x), '</h2>')
 			Titulo_Programa = x[A+49:B]
-		
+
 		if '<img src=' in x:
 			A=find_str(str(x), '<img src="')
 			B=find_str(str(x), '" alt="" />')
@@ -255,9 +255,21 @@ if ID_lista != "[]":
 		json_api_metada = resp.content
 		json_api_metada = json.loads(json_api_metada.decode())
 		
-		FechaExpiracion = json_api_metada['metadata'][ID]['base']['FechaExpiracion']
-		FechaPublicacion = json_api_metada['metadata'][ID]['base']['FechaPublicacion']
-		Idioma = json_api_metada['metadata'][ID]['base']['Idioma']
+		try:
+			FechaExpiracion = json_api_metada['metadata'][ID]['base']['FechaExpiracion']
+		except Exception:
+			FechaExpiracion = "NA"
+		
+		try:	
+			FechaPublicacion = json_api_metada['metadata'][ID]['base']['FechaPublicacion']
+		except Exception:
+			FechaExpiracion = "NA"
+
+		try:
+			Idioma = json_api_metada['metadata'][ID]['base']['Idioma']
+		except Exception:
+			FechaExpiracion = "NA"
+		
 		#try:
 			#Titulo_Programa = ReplaceDontLikeWord(json_api_metada['metadata'][ID]['base']['Keyword'])
 		#except Exception:
@@ -272,12 +284,24 @@ if ID_lista != "[]":
 		#asset_pcode = json_api_content_tree['content_tree'][ID]['asset_pcode']
 		#content_type = json_api_content_tree['content_tree'][ID]['content_type']
 		#created_at = json_api_content_tree['content_tree'][ID]['created_at']
-		description = json_api_content_tree['content_tree'][ID]['description']
-		duration = json_api_content_tree['content_tree'][ID]['duration']
+		try:
+			description = json_api_content_tree['content_tree'][ID]['description']
+		except Exception:
+			FechaExpiracion = "NA"
+
+		try:
+			duration = json_api_content_tree['content_tree'][ID]['duration']
+		except Exception:
+			FechaExpiracion = "NA"
+
 		#embed_code = json_api_content_tree['content_tree'][ID]['embed_code']
 		#promo_image = json_api_content_tree['content_tree'][ID]['promo_image']
 		#thumbnail_image = json_api_content_tree['content_tree'][ID]['thumbnail_image']
-		title = ReplaceDontLikeWord(json_api_content_tree['content_tree'][ID]['title'])
+		
+		try:
+			title = ReplaceDontLikeWord(json_api_content_tree['content_tree'][ID]['title'])
+		except Exception:
+			FechaExpiracion = "NA"
 
 		print("Buscando enlace de descarga...")
 		resp = requests.get(api_authorization, headers=custom_headers_api)
