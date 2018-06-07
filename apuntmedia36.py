@@ -267,18 +267,21 @@ if ID_lista != "[]":
 		try:	
 			FechaPublicacion = json_api_metada['metadata'][ID]['base']['FechaPublicacion']
 		except Exception:
-			FechaExpiracion = "NA"
+			FechaPublicacion = "NA"
 
 		try:
 			Idioma = json_api_metada['metadata'][ID]['base']['Idioma']
 		except Exception:
-			FechaExpiracion = "NA"
+			Idioma = "NA"
 		
 		#try:
 			#Titulo_Programa = ReplaceDontLikeWord(json_api_metada['metadata'][ID]['base']['Keyword'])
 		#except Exception:
 			#Titulo_Programa = "Desconocido"
-		Tipo = json_api_metada['metadata'][ID]['base']['Tipo']
+		try:
+			Tipo = json_api_metada['metadata'][ID]['base']['Tipo']
+		except Exception:
+			Tipo = "NA"
 
 		print("Buscando otros datos...")
 		resp = requests.get(api_content_tree, headers=custom_headers_api)
@@ -291,12 +294,12 @@ if ID_lista != "[]":
 		try:
 			description = json_api_content_tree['content_tree'][ID]['description']
 		except Exception:
-			FechaExpiracion = "NA"
+			description = "NA"
 
 		try:
 			duration = json_api_content_tree['content_tree'][ID]['duration']
 		except Exception:
-			FechaExpiracion = "NA"
+			duration = "NA"
 
 		#embed_code = json_api_content_tree['content_tree'][ID]['embed_code']
 		#promo_image = json_api_content_tree['content_tree'][ID]['promo_image']
@@ -305,7 +308,7 @@ if ID_lista != "[]":
 		try:
 			title = ReplaceDontLikeWord(json_api_content_tree['content_tree'][ID]['title'])
 		except Exception:
-			FechaExpiracion = "NA"
+			title = "NA"
 
 		print("Buscando enlace de descarga...")
 		resp = requests.get(api_authorization, headers=custom_headers_api)
