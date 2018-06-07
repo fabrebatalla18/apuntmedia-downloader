@@ -226,8 +226,9 @@ while contador <= numero_paginas:
 			URL_FOTO = re.split("(/)", URL_FOTO)
 			ID_UNICO = URL_FOTO[-3]
 			js = load_json()
-			if ID_UNICO not in js and ID_UNICO != "body>\n<":
-				ID_lista.append(ID_UNICO)
+			if ID_UNICO not in js:
+				if ID_UNICO != "body>\n<" and "\n" not in ID_UNICO and "<" not in ID_UNICO and ">" not in ID_UNICO:
+					ID_lista.append(ID_UNICO)
 	
 	
 	contador = contador + 1
@@ -257,7 +258,10 @@ if ID_lista != "[]":
 		print("\nBuscando metadatos...")
 		resp = requests.get(api_metadata, headers=custom_headers_api)
 		json_api_metada = resp.content
-		json_api_metada = json.loads(json_api_metada.decode())
+		try:
+			json_api_metada = json.loads(json_api_metada.decode())
+		except Exception:
+			json_api_metada = json.loads(json_api_metada)
 		
 		try:
 			FechaExpiracion = json_api_metada['metadata'][ID]['base']['FechaExpiracion']
@@ -286,7 +290,10 @@ if ID_lista != "[]":
 		print("Buscando otros datos...")
 		resp = requests.get(api_content_tree, headers=custom_headers_api)
 		json_api_content_tree = resp.content
-		json_api_content_tree = json.loads(json_api_content_tree.decode())
+		try:
+			json_api_content_tree = json.loads(json_api_content_tree.decode())
+		except Exception:
+			json_api_content_tree = json.loads(json_api_content_tree)
 		
 		#asset_pcode = json_api_content_tree['content_tree'][ID]['asset_pcode']
 		#content_type = json_api_content_tree['content_tree'][ID]['content_type']
@@ -313,12 +320,35 @@ if ID_lista != "[]":
 		print("Buscando enlace de descarga...")
 		resp = requests.get(api_authorization, headers=custom_headers_api)
 		json_api_authorization = resp.content
-		json_api_authorization = json.loads(json_api_authorization.decode())
+		try:
+			json_api_authorization = json.loads(json_api_authorization.decode())
+		except Exception:
+			json_api_authorization = json.loads(json_api_authorization)
 		
 		URL_List = []
+		url_encode = False
 		for y in json_api_authorization['authorization_data'][ID]['streams']:		
 			if y['delivery_type'] == 'mp4':
-				URL_Dict = (int(y['video_bitrate']), base64.b64decode(y['url']['data']).decode('utf8'))
+				video_bitrate_json = int(y['video_bitrate'])
+				try:
+					url_mp4_json = base64.b64decode(y['url']['data']).decode('utf8')
+				except Exception:
+					try:
+						url_mp4_json = base64.b64decode(y['url']['data']).decode('utf8')
+					except Exception:
+						try:
+							url_mp4_json = base64.b64decode(y['url']['data'].decode('utf8'))
+						except Exception:
+							try:
+								url_mp4_json = base64.b64decode(str(y['url']['data']))
+							except Exception:
+								try:
+									url_mp4_json = base64.b64decode(y['url']['data'])
+								except Exception:
+									url_mp4_json = y['url']['data']
+									url_encode = True
+
+				URL_Dict = (video_bitrate_json, url_mp4_json)
 				URL_List.append(URL_Dict)
 
 		quality_list = []
@@ -342,7 +372,7 @@ if ID_lista != "[]":
 				file.write("\nEnlace: " + maxquality_link)
 				file.write("\n\n\n")
 
-		if not args.no_descargar:
+		if not args.no_descargar and url_encode == False:
 			inputVideo = title + '.mp4'
 			if not os.path.exists(Titulo_Programa): 
 				os.makedirs(Titulo_Programa)
