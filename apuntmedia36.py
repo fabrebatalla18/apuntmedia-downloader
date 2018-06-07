@@ -203,34 +203,37 @@ print("\nBuscando IDs en la página web...")
 print(url_season)
 
 while contador <= numero_paginas:
-	url_season = url_season + '/' + str(contador)
-	html_data = requests.get(url_season, headers=custom_headers_season)
-	html_data = html_data.text
+	try:
+		url_season = url_season + '/' + str(contador)
+		html_data = requests.get(url_season, headers=custom_headers_season)
+		html_data = html_data.text
 
-	A=find_str(html_data, '<div id="content" class="home-dest">')
-	B=find_str(html_data, '<div class="pagination">')
-	lista_ID_all=html_data[A+16:B]
-	lista_ID_all = re.split("<ul>", lista_ID_all)
+		A=find_str(html_data, '<div id="content" class="home-dest">')
+		B=find_str(html_data, '<div class="pagination">')
+		lista_ID_all=html_data[A+16:B]
+		lista_ID_all = re.split("<ul>", lista_ID_all)
 
 
-	for x in lista_ID_all:
-		if '<h2 class="title"><span class="programas"></span>' in x:
-			A=find_str(str(x), '<h2 class="title"><span class="programas"></span>')
-			B=find_str(str(x), '</h2>')
-			Titulo_Programa = ReplaceDontLikeWord(x[A+49:B])
+		for x in lista_ID_all:
+			if '<h2 class="title"><span class="programas"></span>' in x:
+				A=find_str(str(x), '<h2 class="title"><span class="programas"></span>')
+				B=find_str(str(x), '</h2>')
+				Titulo_Programa = ReplaceDontLikeWord(x[A+49:B])
 
-		if '<img src=' in x:
-			A=find_str(str(x), '<img src="')
-			B=find_str(str(x), '" alt="" />')
-			URL_FOTO = x[A+10:B]
-			URL_FOTO = re.split("(/)", URL_FOTO)
-			ID_UNICO = URL_FOTO[-3]
-			js = load_json()
-			if ID_UNICO not in js:
-				if ID_UNICO != "body>\n<" and "\n" not in ID_UNICO and "<" not in ID_UNICO and ">" not in ID_UNICO:
-					ID_lista.append(ID_UNICO)
+			if '<img src=' in x:
+				A=find_str(str(x), '<img src="')
+				B=find_str(str(x), '" alt="" />')
+				URL_FOTO = x[A+10:B]
+				URL_FOTO = re.split("(/)", URL_FOTO)
+				ID_UNICO = URL_FOTO[-3]
+				js = load_json()
+				if ID_UNICO not in js:
+					if ID_UNICO != "body>\n<" and "\n" not in ID_UNICO and "<" not in ID_UNICO and ">" not in ID_UNICO:
+						ID_lista.append(ID_UNICO)
 	
-	
+	except Exception:
+		print("Problema al cargar la URL.")
+
 	contador = contador + 1
 
 create_json(js+list(set(ID_lista)))
