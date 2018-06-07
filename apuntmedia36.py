@@ -345,5 +345,6 @@ if ID_lista != "[]":
 			else:
 				#print("Descargando...")
 				downloadFile2(maxquality_link, inputVideo)
-
-
+				os.chdir(dirPath)
+				if args.carpeta:
+					os.chdir(args.carpeta)
