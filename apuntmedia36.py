@@ -225,10 +225,10 @@ while contador <= numero_paginas:
 				B=find_str(str(x), '" alt="" />')
 				URL_FOTO = x[A+10:B]
 				URL_FOTO = re.split("(/)", URL_FOTO)
-				ID_UNICO = URL_FOTO[-3]
+				ID_UNICO = URL_FOTO[-3].replace("\n", "")
 				js = load_json()
 				if ID_UNICO not in js:
-					if ID_UNICO != "body>\n<" and "\n" not in ID_UNICO and "<" not in ID_UNICO and ">" not in ID_UNICO:
+					if ID_UNICO != "body><" and "<" not in ID_UNICO and ">" not in ID_UNICO:
 						ID_lista.append(ID_UNICO)
 	
 	except Exception:
