@@ -192,18 +192,18 @@ else:
 	else:
 		numero_paginas = int(input("¿Hasta que página quieres buscar? "))
 
+
+if args.url_season:
+	url_season = str(args.url_season)
+else:
+	url_season = input("Introduce la URL de una serie de Apuntmedia: ")
+
+
 print("\nBuscando IDs en la página web...")
-contador2 = 0
+print(url_season)
+
 while contador <= numero_paginas:
-	if args.url_season:
-		url_season = str(args.url_season) + '/' + str(contador)
-	else:
-		url_season = input("Introduce la URL de una serie de Apuntmedia: ")
-		url_season = url_season + '/' + str(contador)
-	
-	if contador2 == 0:
-		print(url_season)
-	
+	url_season = url_season + '/' + str(contador)
 	html_data = requests.get(url_season, headers=custom_headers_season)
 	html_data = html_data.text
 
@@ -231,7 +231,6 @@ while contador <= numero_paginas:
 	
 	
 	contador = contador + 1
-	contador2 = contador2 + 1
 
 create_json(js+list(set(ID_lista)))
 
