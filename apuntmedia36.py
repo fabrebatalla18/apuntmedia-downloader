@@ -236,9 +236,9 @@ while contador <= numero_paginas:
 
 	contador = contador + 1
 
-create_json(js+list(set(ID_lista)))
-
 ID_lista = list(set(ID_lista))
+
+create_json(js+ID_lista)
 
 custom_headers_api = {
 							'Host': 'player.ooyala.com',
