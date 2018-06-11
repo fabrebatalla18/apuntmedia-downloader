@@ -250,20 +250,17 @@ if Titulo_Programa == "":
 if ID_lista == []:
 	html_data3 = requests.get(url_season, headers=custom_headers_season)
 	html_data3 = html_data3.text
+	html_data_all2 = re.split("div", html_data3)
 
-	if 'title="404 Error"' in html_data3:
-		print("Error 404.")
-	else:
-		html_data_all2 = re.split("div", html_data3)
-
-		for x in html_data_all2:
-			if 'var playerParam' in x:
-				A3=find_str(str(x), 'OO.ready(function(')
-				B3=find_str(str(x), 'playerParam)')
-				listanueva = html_data_all2 = re.split(",", x[A3+50:B3-2])
-				ID_UNICO2 = listanueva[-1].replace(" ","").replace("'","")
-				if ID_UNICO2 not in js:
-					ID_lista.append(ID_UNICO2)
+	for x in html_data_all2:
+		if 'var playerParam' in x:
+			A3=find_str(str(x), 'OO.ready(function(')
+			B3=find_str(str(x), 'playerParam)')
+			listanueva = html_data_all2 = re.split(",", x[A3+50:B3-2])
+			ID_UNICO2 = listanueva[-1].replace(" ","").replace("'","")
+			js = load_json()
+			if ID_UNICO2 not in js:
+				ID_lista.append(ID_UNICO2)
 
 
 ID_lista = list(set(ID_lista))
