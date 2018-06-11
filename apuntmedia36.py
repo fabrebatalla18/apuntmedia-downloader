@@ -172,7 +172,7 @@ custom_headers_season = {
 							'Pragma': 'no-cache',
 							'Cache-Control': 'no-cache',
 							'Upgrade-Insecure-Requests': '1',
-							'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36',
+							'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.79 Safari/537.36',
 							'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
 							'Accept-Encoding': 'gzip, deflate, br',
 							'Accept-Language': 'es,ca;q=0.9,en;q=0.8'
@@ -201,11 +201,11 @@ else:
 
 print("\nBuscando IDs en la página web...")
 print(url_season)
-
+Titulo_Programa = ""
 while contador <= numero_paginas:
 	try:
-		url_season = url_season + '/' + str(contador)
-		html_data = requests.get(url_season, headers=custom_headers_season)
+		url_season2 = url_season + '/' + str(contador)
+		html_data = requests.get(url_season2, headers=custom_headers_season)
 		html_data = html_data.text
 
 		A=find_str(html_data, '<div id="content" class="home-dest">')
@@ -218,7 +218,7 @@ while contador <= numero_paginas:
 			if '<h2 class="title"><span class="programas"></span>' in x:
 				A=find_str(str(x), '<h2 class="title"><span class="programas"></span>')
 				B=find_str(str(x), '</h2>')
-				Titulo_Programa = ReplaceDontLikeWord(x[A+49:B])
+				Titulo_Programa = ReplaceDontLikeWord(x[A+49:B].replace("\n", "").replace("\t", ""))
 
 			if '<img src=' in x:
 				A=find_str(str(x), '<img src="')
@@ -236,7 +236,40 @@ while contador <= numero_paginas:
 
 	contador = contador + 1
 
+if Titulo_Programa == "":
+	html_data2 = requests.get(url_season, headers=custom_headers_season)
+	html_data2 = html_data2.text.replace("\n", "").replace("\t", "").replace("  ", "")
+	html_data_all = re.split("div", html_data2)
+
+	for x in html_data_all:
+		if '" newtitle="' in x:
+			A2=find_str(str(x), '<span>')
+			B2=find_str(str(x), '<span class="age">')
+			Titulo_Programa = ReplaceDontLikeWord(x[A2:B2].replace("<span>", "").replace("</span>", ""))
+
+if ID_lista == []:
+	html_data3 = requests.get(url_season, headers=custom_headers_season)
+	html_data3 = html_data3.text
+
+	if 'title="404 Error"' in html_data3:
+		print("Error 404.")
+	else:
+		html_data_all2 = re.split("div", html_data3)
+
+		for x in html_data_all2:
+			if 'var playerParam' in x:
+				A3=find_str(str(x), 'OO.ready(function(')
+				B3=find_str(str(x), 'playerParam)')
+				listanueva = html_data_all2 = re.split(",", x[A3+50:B3-2])
+				ID_UNICO2 = listanueva[-1].replace(" ","").replace("'","")
+				if ID_UNICO2 not in js:
+					ID_lista.append(ID_UNICO2)
+
+
 ID_lista = list(set(ID_lista))
+
+if ID_lista == []:
+	print("No hay nuevos capitulos que guardar.")
 
 create_json(js+ID_lista)
 
@@ -388,3 +421,4 @@ if ID_lista != "[]":
 				os.chdir(dirPath)
 				if args.carpeta:
 					os.chdir(args.carpeta)
+
