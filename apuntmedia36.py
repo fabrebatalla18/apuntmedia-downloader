@@ -314,10 +314,11 @@ if ID_lista != "[]":
 		except Exception:
 			Idioma = "NA"
 		
-		#try:
-			#Titulo_Programa = ReplaceDontLikeWord(json_api_metada['metadata'][ID]['base']['Keyword'])
-		#except Exception:
-			#Titulo_Programa = "Desconocido"
+		if Titulo_Programa == "":
+			try:
+				Titulo_Programa = ReplaceDontLikeWord(json_api_metada['metadata'][ID]['base']['Keyword'])
+			except Exception:
+				Titulo_Programa = "Desconocido"
 		try:
 			Tipo = json_api_metada['metadata'][ID]['base']['Tipo']
 		except Exception:
