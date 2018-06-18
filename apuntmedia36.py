@@ -172,7 +172,7 @@ custom_headers_season = {
 							'Pragma': 'no-cache',
 							'Cache-Control': 'no-cache',
 							'Upgrade-Insecure-Requests': '1',
-							'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3359.181 Safari/537.36',
+							'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.79 Safari/537.36',
 							'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
 							'Accept-Encoding': 'gzip, deflate, br',
 							'Accept-Language': 'es,ca;q=0.9,en;q=0.8'
@@ -192,45 +192,83 @@ else:
 	else:
 		numero_paginas = int(input("¿Hasta que página quieres buscar? "))
 
+
+if args.url_season:
+	url_season = str(args.url_season)
+else:
+	url_season = input("Introduce la URL de una serie de Apuntmedia: ")
+
+
 print("\nBuscando IDs en la página web...")
+print(url_season)
+Titulo_Programa = ""
 while contador <= numero_paginas:
-	if args.url_season:
-		url_season = str(args.url_season) + '/' + str(contador)
-	else:
-		url_season = input("Introduce la URL de una serie de Apuntmedia: ")
-		url_season = url_season + '/' + str(contador)
-	
-	
-	html_data = requests.get(url_season, headers=custom_headers_season)
-	html_data = html_data.text
+	try:
+		url_season2 = url_season + '/' + str(contador)
+		html_data = requests.get(url_season2, headers=custom_headers_season)
+		html_data = html_data.text
 
-	A=find_str(html_data, '<div id="content" class="home-dest">')
-	B=find_str(html_data, '<div class="pagination">')
-	lista_ID_all=html_data[A+16:B]
-	lista_ID_all = re.split("<ul>", lista_ID_all)
+		A=find_str(html_data, '<div id="content" class="home-dest">')
+		B=find_str(html_data, '<div class="pagination">')
+		lista_ID_all=html_data[A+16:B]
+		lista_ID_all = re.split("<ul>", lista_ID_all)
 
 
-	for x in lista_ID_all:
-		if '<h2 class="title"><span class="programas"></span>' in x:
-			A=find_str(str(x), '<h2 class="title"><span class="programas"></span>')
-			B=find_str(str(x), '</h2>')
-			Titulo_Programa = ReplaceDontLikeWord(x[A+49:B])
+		for x in lista_ID_all:
+			if '<h2 class="title"><span class="programas"></span>' in x:
+				A=find_str(str(x), '<h2 class="title"><span class="programas"></span>')
+				B=find_str(str(x), '</h2>')
+				Titulo_Programa = ReplaceDontLikeWord(x[A+49:B].replace("\n", "").replace("\t", ""))
 
-		if '<img src=' in x:
-			A=find_str(str(x), '<img src="')
-			B=find_str(str(x), '" alt="" />')
-			URL_FOTO = x[A+10:B]
-			URL_FOTO = re.split("(/)", URL_FOTO)
-			ID_UNICO = URL_FOTO[-3]
-			js = load_json()
-			if ID_UNICO not in js and ID_UNICO != "body>\n<":
-				ID_lista.append(ID_UNICO)
+			if '<img src=' in x:
+				A=find_str(str(x), '<img src="')
+				B=find_str(str(x), '" alt="" />')
+				URL_FOTO = x[A+10:B]
+				URL_FOTO = re.split("(/)", URL_FOTO)
+				ID_UNICO = URL_FOTO[-3].replace("\n", "")
+				js = load_json()
+				if ID_UNICO not in js:
+					if ID_UNICO != "body><" and "<" not in ID_UNICO and ">" not in ID_UNICO:
+						ID_lista.append(ID_UNICO)
 	
-	
+	except Exception:
+		print("Problema al cargar la URL.")
+
 	contador = contador + 1
-create_json(js+list(set(ID_lista)))
+
+if Titulo_Programa == "":
+	html_data2 = requests.get(url_season, headers=custom_headers_season)
+	html_data2 = html_data2.text.replace("\n", "").replace("\t", "").replace("  ", "")
+	html_data_all = re.split("div", html_data2)
+
+	for x in html_data_all:
+		if '" newtitle="' in x:
+			A2=find_str(str(x), '<span>')
+			B2=find_str(str(x), '<span class="age">')
+			Titulo_Programa = ReplaceDontLikeWord(x[A2:B2].replace("<span>", "").replace("</span>", ""))
+
+if ID_lista == []:
+	html_data3 = requests.get(url_season, headers=custom_headers_season)
+	html_data3 = html_data3.text
+	html_data_all2 = re.split("div", html_data3)
+
+	for x in html_data_all2:
+		if 'var playerParam' in x:
+			A3=find_str(str(x), 'OO.ready(function(')
+			B3=find_str(str(x), 'playerParam)')
+			listanueva = html_data_all2 = re.split(",", x[A3+50:B3-2])
+			ID_UNICO2 = listanueva[-1].replace(" ","").replace("'","")
+			js = load_json()
+			if ID_UNICO2 not in js:
+				ID_lista.append(ID_UNICO2)
+
 
 ID_lista = list(set(ID_lista))
+
+if ID_lista == []:
+	print("No hay nuevos capitulos que guardar.")
+
+create_json(js+ID_lista)
 
 custom_headers_api = {
 							'Host': 'player.ooyala.com',
@@ -253,7 +291,10 @@ if ID_lista != "[]":
 		print("\nBuscando metadatos...")
 		resp = requests.get(api_metadata, headers=custom_headers_api)
 		json_api_metada = resp.content
-		json_api_metada = json.loads(json_api_metada.decode())
+		try:
+			json_api_metada = json.loads(json_api_metada.decode())
+		except Exception:
+			json_api_metada = json.loads(json_api_metada)
 		
 		try:
 			FechaExpiracion = json_api_metada['metadata'][ID]['base']['FechaExpiracion']
@@ -263,23 +304,30 @@ if ID_lista != "[]":
 		try:	
 			FechaPublicacion = json_api_metada['metadata'][ID]['base']['FechaPublicacion']
 		except Exception:
-			FechaExpiracion = "NA"
+			FechaPublicacion = "NA"
 
 		try:
 			Idioma = json_api_metada['metadata'][ID]['base']['Idioma']
 		except Exception:
-			FechaExpiracion = "NA"
+			Idioma = "NA"
 		
-		#try:
-			#Titulo_Programa = ReplaceDontLikeWord(json_api_metada['metadata'][ID]['base']['Keyword'])
-		#except Exception:
-			#Titulo_Programa = "Desconocido"
-		Tipo = json_api_metada['metadata'][ID]['base']['Tipo']
+		if Titulo_Programa == "":
+			try:
+				Titulo_Programa = ReplaceDontLikeWord(json_api_metada['metadata'][ID]['base']['Keyword'])
+			except Exception:
+				Titulo_Programa = "Desconocido"
+		try:
+			Tipo = json_api_metada['metadata'][ID]['base']['Tipo']
+		except Exception:
+			Tipo = "NA"
 
 		print("Buscando otros datos...")
 		resp = requests.get(api_content_tree, headers=custom_headers_api)
 		json_api_content_tree = resp.content
-		json_api_content_tree = json.loads(json_api_content_tree.decode())
+		try:
+			json_api_content_tree = json.loads(json_api_content_tree.decode())
+		except Exception:
+			json_api_content_tree = json.loads(json_api_content_tree)
 		
 		#asset_pcode = json_api_content_tree['content_tree'][ID]['asset_pcode']
 		#content_type = json_api_content_tree['content_tree'][ID]['content_type']
@@ -287,12 +335,12 @@ if ID_lista != "[]":
 		try:
 			description = json_api_content_tree['content_tree'][ID]['description']
 		except Exception:
-			FechaExpiracion = "NA"
+			description = "NA"
 
 		try:
 			duration = json_api_content_tree['content_tree'][ID]['duration']
 		except Exception:
-			FechaExpiracion = "NA"
+			duration = "NA"
 
 		#embed_code = json_api_content_tree['content_tree'][ID]['embed_code']
 		#promo_image = json_api_content_tree['content_tree'][ID]['promo_image']
@@ -301,17 +349,40 @@ if ID_lista != "[]":
 		try:
 			title = ReplaceDontLikeWord(json_api_content_tree['content_tree'][ID]['title'])
 		except Exception:
-			FechaExpiracion = "NA"
+			title = "NA"
 
 		print("Buscando enlace de descarga...")
 		resp = requests.get(api_authorization, headers=custom_headers_api)
 		json_api_authorization = resp.content
-		json_api_authorization = json.loads(json_api_authorization.decode())
+		try:
+			json_api_authorization = json.loads(json_api_authorization.decode())
+		except Exception:
+			json_api_authorization = json.loads(json_api_authorization)
 		
 		URL_List = []
+		url_encode = False
 		for y in json_api_authorization['authorization_data'][ID]['streams']:		
 			if y['delivery_type'] == 'mp4':
-				URL_Dict = (int(y['video_bitrate']), base64.b64decode(y['url']['data']).decode('utf8'))
+				video_bitrate_json = int(y['video_bitrate'])
+				try:
+					url_mp4_json = base64.b64decode(y['url']['data']).decode('utf8')
+				except Exception:
+					try:
+						url_mp4_json = base64.b64decode(y['url']['data']).decode('utf8')
+					except Exception:
+						try:
+							url_mp4_json = base64.b64decode(y['url']['data'].decode('utf8'))
+						except Exception:
+							try:
+								url_mp4_json = base64.b64decode(str(y['url']['data']))
+							except Exception:
+								try:
+									url_mp4_json = base64.b64decode(y['url']['data'])
+								except Exception:
+									url_mp4_json = y['url']['data']
+									url_encode = True
+
+				URL_Dict = (video_bitrate_json, url_mp4_json)
 				URL_List.append(URL_Dict)
 
 		quality_list = []
@@ -335,7 +406,7 @@ if ID_lista != "[]":
 				file.write("\nEnlace: " + maxquality_link)
 				file.write("\n\n\n")
 
-		if not args.no_descargar:
+		if not args.no_descargar and url_encode == False:
 			inputVideo = title + '.mp4'
 			if not os.path.exists(Titulo_Programa): 
 				os.makedirs(Titulo_Programa)
@@ -345,5 +416,7 @@ if ID_lista != "[]":
 			else:
 				#print("Descargando...")
 				downloadFile2(maxquality_link, inputVideo)
-
+				os.chdir(dirPath)
+				if args.carpeta:
+					os.chdir(args.carpeta)
 
