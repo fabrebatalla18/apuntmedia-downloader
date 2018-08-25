@@ -167,7 +167,7 @@ if args.carpeta:
 
 
 custom_headers_season = {
-							'Host': 'www.apuntmedia.es',
+							'Host': 'apuntmedia.es',
 							'Connection': 'keep-alive',
 							'Pragma': 'no-cache',
 							'Cache-Control': 'no-cache',
@@ -236,6 +236,36 @@ while contador <= numero_paginas:
 				A=find_str(str(x), '<h2 class="title"><span class="programas" style="background-color: #FFFFFFFF; "></span>')
 				B=find_str(str(x), '</h2>')
 				Titulo_Programa = ReplaceDontLikeWord(x[A+87:B].replace("\n", "").replace("\t", ""))
+			# <h2>Les dones de Bletchley. Capítol 1</h2>
+			if '<h2>' in x:
+				A=find_str(str(x), '<h2>')
+				B=find_str(str(x), '</h2>')
+				Titulo_Programa = ReplaceDontLikeWord(x[A+4:B].replace("\n", "").replace("\t", ""))
+			# <h2 class="title"><span class="noticias" style="background-color: #FCE444; "></span></h2>
+			if '<h2 class="title"><span class="noticias" style="background-color: #FCE444; "></span>' in x:
+				A=find_str(str(x), '<h2 class="title"><span class="noticias" style="background-color: #FCE444; "></span>')
+				B=find_str(str(x), '</h2>')
+				Titulo_Programa = ReplaceDontLikeWord(x[A+84:B].replace("\n", "").replace("\t", ""))
+			# <h2 class="title"><span class="programas" style="background-color: #FCE444; "></span>
+			if '<h2 class="title"><span class="programas" style="background-color: #FCE444; "></span>' in x:
+				A=find_str(str(x), '<h2 class="title"><span class="programas" style="background-color: #FCE444; "></span>')
+				B=find_str(str(x), '</h2>')
+				Titulo_Programa = ReplaceDontLikeWord(x[A+85:B].replace("\n", "").replace("\t", ""))
+			# <h2 class="title"><span class="noticias" style="background-color: #008CD6; "></span>
+			if '<h2 class="title"><span class="noticias" style="background-color: #008CD6; "></span>' in x:
+				A=find_str(str(x), '<h2 class="title"><span class="noticias" style="background-color: #008CD6; "></span>')
+				B=find_str(str(x), '</h2>')
+				Titulo_Programa = ReplaceDontLikeWord(x[A+84:B].replace("\n", "").replace("\t", ""))
+			#<h2 class="title"><span class="noticias" style="background-color: #008CD6; "></span>
+			if '<h2 class="title"><span class="noticias" style="background-color: #008CD6; "></span>' in x:
+				A=find_str(str(x), '<h2 class="title"><span class="noticias" style="background-color: #008CD6; "></span>')
+				B=find_str(str(x), '</h2>')
+				Titulo_Programa = ReplaceDontLikeWord(x[A+84:B].replace("\n", "").replace("\t", ""))
+			if '<h2 class="title"><span class="programas" style="background-color: #008CD6; "></span>' in x:
+				A=find_str(str(x), '<h2 class="title"><span class="programas" style="background-color: #008CD6; "></span>')
+				B=find_str(str(x), '</h2>')
+				Titulo_Programa = ReplaceDontLikeWord(x[A+85:B].replace("\n", "").replace("\t", ""))
+
 
 
 			if '<img src=' in x:
@@ -438,4 +468,5 @@ if ID_lista != "[]":
 				os.chdir(dirPath)
 				if args.carpeta:
 					os.chdir(args.carpeta)
+
 
