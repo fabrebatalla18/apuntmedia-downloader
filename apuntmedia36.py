@@ -167,7 +167,7 @@ if args.carpeta:
 
 
 custom_headers_season = {
-							'Host': 'www.apuntmedia.es',
+							'Host': 'apuntmedia.es',
 							'Connection': 'keep-alive',
 							'Pragma': 'no-cache',
 							'Cache-Control': 'no-cache',
@@ -215,10 +215,58 @@ while contador <= numero_paginas:
 
 
 		for x in lista_ID_all:
+                   
+
+			if '<h2 class="title"><span class="noticias" style="background-color: #FFFFFF; "></span>' in x:
+				A=find_str(str(x), '<h2 class="title"><span class="noticias" style="background-color: #FFFFFF; "></span>')
+				B=find_str(str(x), '</h2>')
+				Titulo_Programa = ReplaceDontLikeWord(x[A+83:B].replace("\n", "").replace("\t", ""))
+
 			if '<h2 class="title"><span class="programas"></span>' in x:
 				A=find_str(str(x), '<h2 class="title"><span class="programas"></span>')
 				B=find_str(str(x), '</h2>')
 				Titulo_Programa = ReplaceDontLikeWord(x[A+49:B].replace("\n", "").replace("\t", ""))
+
+			if '<h2 class="title"><span class="programas" style="background-color: #FFFFFF; "></span>' in x:
+				A=find_str(str(x), '<h2 class="title"><span class="programas" style="background-color: #FFFFFF; "></span>')
+				B=find_str(str(x), '</h2>')
+				Titulo_Programa = ReplaceDontLikeWord(x[A+85:B].replace("\n", "").replace("\t", ""))
+			# socks
+			if '<h2 class="title"><span class="programas" style="background-color: #FFFFFFFF; "></span>' in x:
+				A=find_str(str(x), '<h2 class="title"><span class="programas" style="background-color: #FFFFFFFF; "></span>')
+				B=find_str(str(x), '</h2>')
+				Titulo_Programa = ReplaceDontLikeWord(x[A+87:B].replace("\n", "").replace("\t", ""))
+			# <h2>Les dones de Bletchley. Capítol 1</h2>
+			if '<h2>' in x:
+				A=find_str(str(x), '<h2>')
+				B=find_str(str(x), '</h2>')
+				Titulo_Programa = ReplaceDontLikeWord(x[A+4:B].replace("\n", "").replace("\t", ""))
+			# <h2 class="title"><span class="noticias" style="background-color: #FCE444; "></span></h2>
+			if '<h2 class="title"><span class="noticias" style="background-color: #FCE444; "></span>' in x:
+				A=find_str(str(x), '<h2 class="title"><span class="noticias" style="background-color: #FCE444; "></span>')
+				B=find_str(str(x), '</h2>')
+				Titulo_Programa = ReplaceDontLikeWord(x[A+84:B].replace("\n", "").replace("\t", ""))
+			# <h2 class="title"><span class="programas" style="background-color: #FCE444; "></span>
+			if '<h2 class="title"><span class="programas" style="background-color: #FCE444; "></span>' in x:
+				A=find_str(str(x), '<h2 class="title"><span class="programas" style="background-color: #FCE444; "></span>')
+				B=find_str(str(x), '</h2>')
+				Titulo_Programa = ReplaceDontLikeWord(x[A+85:B].replace("\n", "").replace("\t", ""))
+			# <h2 class="title"><span class="noticias" style="background-color: #008CD6; "></span>
+			if '<h2 class="title"><span class="noticias" style="background-color: #008CD6; "></span>' in x:
+				A=find_str(str(x), '<h2 class="title"><span class="noticias" style="background-color: #008CD6; "></span>')
+				B=find_str(str(x), '</h2>')
+				Titulo_Programa = ReplaceDontLikeWord(x[A+84:B].replace("\n", "").replace("\t", ""))
+			#<h2 class="title"><span class="noticias" style="background-color: #008CD6; "></span>
+			if '<h2 class="title"><span class="noticias" style="background-color: #008CD6; "></span>' in x:
+				A=find_str(str(x), '<h2 class="title"><span class="noticias" style="background-color: #008CD6; "></span>')
+				B=find_str(str(x), '</h2>')
+				Titulo_Programa = ReplaceDontLikeWord(x[A+84:B].replace("\n", "").replace("\t", ""))
+			if '<h2 class="title"><span class="programas" style="background-color: #008CD6; "></span>' in x:
+				A=find_str(str(x), '<h2 class="title"><span class="programas" style="background-color: #008CD6; "></span>')
+				B=find_str(str(x), '</h2>')
+				Titulo_Programa = ReplaceDontLikeWord(x[A+85:B].replace("\n", "").replace("\t", ""))
+
+
 
 			if '<img src=' in x:
 				A=find_str(str(x), '<img src="')
@@ -235,7 +283,7 @@ while contador <= numero_paginas:
 		print("Problema al cargar la URL.")
 
 	contador = contador + 1
-
+print("Titulo: \""+Titulo_Programa+"\"")
 if Titulo_Programa == "":
 	html_data2 = requests.get(url_season, headers=custom_headers_season)
 	html_data2 = html_data2.text.replace("\n", "").replace("\t", "").replace("  ", "")
@@ -413,10 +461,12 @@ if ID_lista != "[]":
 			os.chdir(Titulo_Programa)
 			if os.path.isfile(inputVideo) and not os.path.isfile(inputVideo + ".aria2"):
 				print("Ya descargaste anteriormente el archivo: " + inputVideo)
+				os.chdir("..")
 			else:
 				#print("Descargando...")
 				downloadFile2(maxquality_link, inputVideo)
 				os.chdir(dirPath)
 				if args.carpeta:
 					os.chdir(args.carpeta)
+
 
